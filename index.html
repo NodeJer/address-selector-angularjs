@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:ng="http://angularjs.org">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"/>
+<title>Examples</title>
+<meta name="description" content="">
+<meta name="keywords" content="">
+<style>
+</style>
+</head>
+<body id="ng-app" ng-controller="addressCtrl">
+    <form name="myform" method="get" action="test.php">
+        <select name="province"
+            ng-model="province"
+            ng-options="m.name for m in provinces"
+            ng-change="city=province.city[0];area&&(area=city.area[0])"
+        >
+        </select>
+        <select name="city"
+            ng-show="city"
+            ng-model="city"
+            ng-options="c.name for c in province.city"
+            ng-change="area=city.area[0]"
+        >
+        </select>
+        <select name="area"
+            ng-show="area"
+            ng-model="area"
+            ng-options="a.name for a in city.area"
+        >
+        </select>
+        <input type="submit">
+    </form>
+    <!--[if lte IE 7]>
+        <script src="json2.js"></script>
+    <![endif]-->
+    <script src="angular.min.js"></script>
+    <script src="address.js"></script>
+    <script src="angular-ng-options-post.js"></script>
+    <script>
+        angular.module('app', ['ngOptionsPost']).
+
+        config(function($sceProvider) {
+          // Completely disable SCE to support IE7.
+          $sceProvider.enabled(false);
+        }).
+
+        controller('addressCtrl', function($scope, $element){
+            $scope.provinces = address.province;
+
+            $scope.province = $scope.server||$scope.provinces[0];
+            $scope.city = $scope.server;
+            $scope.area = $scope.server;
+        });
+
+        angular.bootstrap(document.body, ['app']);
+    </script>
+</body>
+</html>
