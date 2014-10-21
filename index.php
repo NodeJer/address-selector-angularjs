@@ -1,3 +1,21 @@
+<?php
+    $action = $_SERVER['PHP_SELF'];
+
+    $province = 'undefined';
+
+    $city = 'undefined';
+
+    $area = 'undefined';
+
+    if($_SERVER['REQUEST_METHOD'] === 'POST'){
+        $province = $_POST['province'];
+
+        $city = $_POST['city'];
+
+        $area = $_POST['area'];
+    }
+    
+?>
 <!DOCTYPE html>
 <html xmlns:ng="http://angularjs.org">
 <head>
@@ -8,29 +26,38 @@
 <meta name="description" content="">
 <meta name="keywords" content="">
 <style>
+    code{display: block; margin-bottom: 10px;}
 </style>
 </head>
 <body id="ng-app" ng-controller="addressCtrl">
-    <form name="myform" method="get" action="test.php">
+    <form name="myform" method="post" action="<?php echo $action ?>">
         <select name="province"
             ng-model="province"
-            ng-options="m.name for m in provinces"
+            ng-options="p.name for p in provinces track by p.code"
             ng-change="city=province.city[0];area&&(area=city.area[0])"
         >
         </select>
         <select name="city"
             ng-show="city"
             ng-model="city"
-            ng-options="c.name for c in province.city"
+            ng-options="c.name for c in province.city track by c.code"
             ng-change="area=city.area[0]"
         >
         </select>
         <select name="area"
             ng-show="area"
             ng-model="area"
-            ng-options="a.name for a in city.area"
+            ng-options="a.name for a in city.area track by a.code"
         >
         </select>
+        <br>
+        省：
+        <pre>{{province}}</pre>
+        市：
+        <pre>{{city}}</pre>
+        区域：
+        <pre>{{area}}</pre>
+
         <input type="submit">
     </form>
     <!--[if lte IE 7]>
@@ -38,21 +65,29 @@
     <![endif]-->
     <script src="angular.min.js"></script>
     <script src="address.js"></script>
-    <script src="angular-ng-options-post.js"></script>
     <script>
-        angular.module('app', ['ngOptionsPost']).
+        angular.module('app', []).
 
         config(function($sceProvider) {
           // Completely disable SCE to support IE7.
           $sceProvider.enabled(false);
         }).
 
-        controller('addressCtrl', function($scope, $element){
+        controller('addressCtrl', function($scope, $element, $filter){
+
             $scope.provinces = address.province;
 
-            $scope.province = $scope.server||$scope.provinces[0];
-            $scope.city = $scope.server;
-            $scope.area = $scope.server;
+            var p = c = a = [];
+
+            if( '<? echo $_SERVER['REQUEST_METHOD'] ?>' === 'POST'){
+                p = $filter('filter')($scope.provinces, '<?php echo $province ?>');
+                c = $filter('filter')(p[0].city, '<?php echo $city ?>');
+                a = $filter('filter')(c[0].area, '<?php echo $area ?>');
+            }
+
+            $scope.province = p[0] || $scope.provinces[0];
+            $scope.city =  c[0];
+            $scope.area = a[0];
         });
 
         angular.bootstrap(document.body, ['app']);
