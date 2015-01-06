@@ -83,7 +83,7 @@ directive('province', function(){
 						code=""\
 			            ng-model="addressScope.province"\
 			            ng-options="p.name for p in addressScope.provinces track by p.code"\
-			            ng-change="addressScope.city=addressScope.province.city[0];addressScope.area&&(addressScope.area=city.area[0])">\
+			            ng-change="addressScope.city=addressScope.province.city[0];addressScope.area&&(addressScope.area=addressScope.city.area[0])">\
 			       </select>',
 		replace: true,
 		link: function($scope, iElm, iAttrs, controller) {
