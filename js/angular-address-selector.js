@@ -101,6 +101,7 @@ mod.directive('city', function() {
         },
         template: '<select\
 			            ng-model="model"\
+			            ng-if="parent.model[name]"\
 			            ng-options="c.name for c in parent.model[name] track by c.code"\
 			       </select>',
         replace: true,
@@ -126,6 +127,7 @@ mod.directive('area', function(){
 		restrict: 'AE', 
 		template: '<select\
 			            ng-model="model"\
+			            ng-if="parent.model[name]"\
 			            ng-options="a.name for a in parent.model[name] track by a.code">\
 			       </select>',
 		replace: true,
