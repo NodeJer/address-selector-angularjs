@@ -1,142 +1,139 @@
-/**
-* addressSelector Module
-*
-* 地址选择器
-*/
-angular.module('addressSelector', []).
+var mod = angular.module('ngAddressSelector', []);
 
-provider('$address', function() {
+mod.directive('address', ['$filter', '$http', '$rootScope', function($filter, $http, $rootScope) {
+    return {
+        scope: {},
+        controller: function($scope, $element, $attrs, $transclude) {
+            var addressArr = $scope.addressArr = [];
 
-	var http;
+            this.getScope = function() {
+                return $scope;
+            }
+            this.pushAddress = function(address) {
+                addressArr.push(address);
+            }
 
-	this.dataUrl = null;
+            $http.get($attrs.data).success(function(res) {
 
-	this.setUrl = function(str) {
-		this.dataUrl = str;
-	}
+            	addressArr = $filter('orderBy')(addressArr, '-name');
 
-	this.success = function(fn){
-		http.get(this.dataUrl).success(fn);
-	}
+                $scope.model = res;
+                
+                angular.forEach(addressArr, function(address) {
+                	//找到上一级
+                    findParnet(address);
 
-	this.$get = function($http, $log) {
-		http = $http;
+                    var code = address.code;
+                    var name = address.name;
+                    var parent = address.parent;
 
-		if(!this.dataUrl){
-			$log.error('请给addressSelector模块一个数据接口地址');
-		}
+                    if (code) {
+                        address.model = $filter('filter')(parent.model[name], {
+                            code: code
+                        })[0];
+                    } else {
+                        parent.$watch('model', function(newVal){
+			            	address.model = newVal[name][0];
+			            });
+                    }
+                });
 
-		return this;
-	}
-}).
+                function findParnet(address) {
 
-directive('address', ['$address', '$filter', function($address, $filter){
+                    var parentName = address.parentName;
+                    var name = address.name;
+
+                    if (parentName === 'address') {
+                        address.parent = $scope;
+                        return;
+                    }
+
+                    angular.forEach(addressArr, function(address2) {
+                        if (address2.name === parentName) {
+                            address.parent = address2;
+                        }
+                    });
+                }
+            });
+        },
+        restrict: 'AE',
+    };
+
+}]);
+
+mod.directive('province', function() {
+
+    return {
+        scope: {
+            code: '@'
+        },
+        require: '^?address',
+        restrict: 'AE',
+        controller: function($scope, $element, $attrs, $transclude) {
+            $scope.name = 'province';
+            $scope.parentName = 'address';
+        },
+        template: '<select\
+			            ng-model="model"\
+			            ng-options="p.name for p in parent.model[name] track by p.code"\
+			            ng-change="$emit(\'change\')"\
+			       </select>',
+        replace: true,
+        link: function($scope, iElm, iAttrs, addressController) {
+            if (!addressController) return;
+
+            addressController.pushAddress($scope);
+        }
+    };
+
+});
+mod.directive('city', function() {
+
+    return {
+        scope: {
+            code: '@'
+        },
+        require: '^?address',
+        restrict: 'AE',
+        controller: function($scope, $element, $attrs, $transclude) {
+            $scope.name = 'city';
+            $scope.parentName = 'province';
+        },
+        template: '<select\
+			            ng-model="model"\
+			            ng-options="c.name for c in parent.model[name] track by c.code"\
+			       </select>',
+        replace: true,
+        link: function($scope, iElm, iAttrs, addressController) {
+            if (!addressController) return;
+
+            addressController.pushAddress($scope);
+        }
+    };
+
+});
+
+mod.directive('area', function(){
 	return {
-		scope: {},
+		scope: {
+			code: '@'
+		},
+		require: '^?address',
 		controller: function($scope, $element, $attrs, $transclude) {
-			this.$scope = $scope;
-
-			$scope.codes = {};
-
-			$address.success(function(res){
-
-				$scope.provinces = res.province;
-
-				filter('province', $scope.codes.province, $scope.provinces);
-				filter('city', $scope.codes.city, $scope.province.city);
-				filter('area', $scope.codes.area, $scope.city.area);
-
-				function filter(type, code, data){
-					if(code){
-						$scope[type] = $filter('filter')(data, { code: code })[0];
-					}
-					else{
-						if(type === 'city' || type === 'area'){
-							$scope[type] = '';
-						}
-						else{
-							$scope[type] = data[0];
-						}
-					}
-					
-				}
-			});
-		},
-		restrict: 'AE', 
-		
-		link: function($scope, iElm, iAttrs, controller) {
-
-		}
-	};
-
-}]).
-
-directive('province', function(){
-
-	return {
-		scope: {
-			code: '='
-		},
-		require: '^address',
+            $scope.name = 'area';
+            $scope.parentName = 'city';
+        },
 		restrict: 'AE', 
 		template: '<select\
-						code=""\
-			            ng-model="addressScope.province"\
-			            ng-options="p.name for p in addressScope.provinces track by p.code"\
-			            ng-change="addressScope.city=addressScope.province.city[0];addressScope.area&&(addressScope.area=addressScope.city.area[0])">\
+			            ng-model="model"\
+			            ng-options="a.name for a in parent.model[name] track by a.code">\
 			       </select>',
 		replace: true,
-		link: function($scope, iElm, iAttrs, controller) {
-			$scope.addressScope = controller.$scope;
-			$scope.addressScope.codes.province = $scope.code;
+		link: function($scope, iElm, iAttrs, addressController) {
+			if(!addressController)return;
+
+			addressController.pushAddress($scope);
 		}
 	};
+});
 
-}).
-
-directive('city', function(){
-
-	return {
-		scope: {
-			code: '='
-		},
-		require: '^address',
-		restrict: 'AE', 
-		template: '<select\
-						code=""\
-			            ng-model="addressScope.city"\
-			            ng-show="addressScope.city"\
-			            ng-options="c.name for c in addressScope.province.city track by c.code"\
-			            ng-change="addressScope.area=addressScope.city.area[0]">\
-			       </select>',
-		replace: true,
-		link: function($scope, iElm, iAttrs, controller) {
-			$scope.addressScope = controller.$scope;
-			$scope.addressScope.codes.city = $scope.code;
-		}
-	};
-
-}).
-
-directive('cityArea', function(){
-
-	return {
-		scope: {
-			code: '='
-		},
-		require: '^address',
-		restrict: 'AE', 
-		template: '<select\
-						code=""\
-			            ng-show="addressScope.area"\
-			            ng-model="addressScope.area"\
-			            ng-options="a.name for a in addressScope.city.area track by a.code">\
-			       </select>',
-		replace: true,
-		link: function($scope, iElm, iAttrs, controller) {
-			$scope.addressScope = controller.$scope;
-			$scope.addressScope.codes.area = $scope.code;
-		}
-	};
-
-})

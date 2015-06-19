@@ -1,4 +1,4 @@
-var address = {
+{
     "province":[
     {"id":1, "code":"110000", "name":"北京市", "city":[
         {"id":2, "code":"110100", "name":"市辖区", "area":[

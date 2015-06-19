@@ -13,28 +13,32 @@
 </style>
 </head>
 <body id="ng-app">
-    <form name="form" action="http://www.github.com" method="get" address>
+    <form name="form" action="http://www.github.com" method="get">
         <!-- <province name="province" code="340000"></province>
         <city name="city" code="340500"></city>
         <city-area name="area" code="340521"></city-area> -->
 
-        <province name="province"></province>
-        <city name="city"></city>
-        <city-area name="area"></city-area>
-
+        <address data="js/address.js">
+            <province name="province"></province>
+            <city name="city"></city>
+            <area name="area"></area>
+        </address>
+        <br>
+        <br>
+        <br>
+        <address data="js/address.js">
+            <province name="province" code="340000"></province>
+            <city name="city"></city>
+            <area name="area"></area>
+        </address>
+        <br>
         <input type="submit">
     </form>
 
     <script src="js/angular.min.js"></script>
     <script src="js/angular-address-select.js"></script>
     <script>
-        angular.module('app', ['addressSelector']).
-
-        config(function($addressProvider) {
-
-          $addressProvider.setUrl('./js/address.json');
-
-        });
+        angular.module('app', ['ngAddressSelector']);
 
         angular.bootstrap(document.body, ['app']);
     </script>
