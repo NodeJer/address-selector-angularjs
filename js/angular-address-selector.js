@@ -33,6 +33,8 @@ mod.directive('address', ['$filter', '$http', '$rootScope', function($filter, $h
                         })[0];
                     } else {
                         parent.$watch('model', function(newVal){
+                        	if(!newVal)return;
+                        	
 			            	address.model = newVal[name][0];
 			            });
                     }
