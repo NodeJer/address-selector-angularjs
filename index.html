@@ -1,46 +1,74 @@
-
 <!DOCTYPE html>
 <html xmlns:ng="http://angularjs.org">
+
 <head>
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"/>
-<title>Examples</title>
-<meta name="description" content="">
-<meta name="keywords" content="">
-<style>
-    code{display: block; margin-bottom: 10px;}
-</style>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+    <title>Examples</title>
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <link rel="stylesheet" href="css/reset.css">
+    <style>
+    select {
+        display: block;
+        width: 100%;
+        font-family: "黑体";
+        line-height: 60px; height: 60px;
+        border: none;
+        outline: none;
+        text-align: center;
+        background: #666;
+        color: #fff;
+        border-radius: 0;
+        -webkit-justify-content:center;
+        align-items: center;
+        -webkit-appearance: none;
+    }
+    select option{
+        font-size: 20px;
+        font-weight: 600;
+        text-align: center;
+    }
+    select:focus, select:blur{
+        outline: none;
+        border: none;
+    }
+    .box .s2{
+        border-left: 1px solid #555;
+        border-right: 1px solid #555
+    }
+    
+    </style>
 </head>
+
 <body id="ng-app">
     <form name="form" action="http://www.github.com" method="get">
         <!-- <province name="province" code="340000"></province>
         <city name="city" code="340500"></city>
         <city-area name="area" code="340521"></city-area> -->
-
-        <address data="js/address.js">
-            <province name="province" code="340000"></province>
-            <city name="city" code="340500"></city>
-            <area name="area" code="340521"></area>
+        <address data="js/address.js" class="flex box">
+            <province class="flex flex1" name="province" code="340000"></province>
+            <city class="flex flex1 s2" name="city"></city>
+            <area class="flex flex1" name="area"></area>
         </address>
         <br>
         <br>
         <br>
-        <!-- <address data="js/address.js">
-            <province name="province" code="340000"></province>
-            <city name="city"></city>
-            <area name="area"></area>
-        </address> -->
+        <address data="js/address.js" class="flex box">
+            <province class="flex flex1" name="province" code="340000"></province>
+            <city class="flex flex1 s2" name="city"></city>
+            <area class="flex flex1" name="area"></area>
+        </address>
         <br>
-        <input type="submit">
+        <input type="submit" value="update">
     </form>
-
     <script src="js/angular.min.js"></script>
     <script src="js/angular-address-selector.js"></script>
     <script>
-        angular.module('app', ['ngAddressSelector']);
-
+        var app = angular.module('app', ['ngAddressSelector']);
         angular.bootstrap(document.body, ['app']);
     </script>
 </body>
+
 </html>

@@ -1,0 +1,36 @@
+.ng-slider{
+	position: relative;
+	overflow: hidden;
+}
+.ng-slider .ng-slider-list{
+	white-space: nowrap;
+	font-size: 0; line-height: 0;
+	-webkit-transition: left .2s linear, -webkit-transform .2s linear;
+	-webkit-transition: left .2s linear, transform .2s linear;
+	-moz-transition: left .2s linear, -moz-transform .2s linear;
+	transition: left .2s linear, transform .2s linear;
+}
+.ng-slider .ng-slider-list .item{
+	display: inline-block;
+	line-height: normal;
+	width: 100%;
+}
+.ng-slider img{
+	background: #ddd;
+}
+.ng-slider .ng-slider-btn-list{
+	position: absolute; bottom: 20px;
+	width: 100%;
+	text-align: center;
+}
+.ng-slider .ng-slider-btn-list .item{
+	display: inline-block;
+	width: 10px; height: 10px;
+	margin: 0 5px;
+	border-radius: 10px;
+	background-color: #141414;
+	cursor: pointer;
+}
+.ng-slider .ng-slider-btn-list .active{
+	background-color: #0f6297;
+}

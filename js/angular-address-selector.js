@@ -13,9 +13,9 @@ mod.directive('address', ['$http', '$filter', function($http, $filter) {
                 addressArr.push(address);
             }
 
-            $scope.$on('childChange', function(ev, model){
+            $scope.$on('childChange', function(ev, model, scope){
             	angular.forEach(addressArr, function(value, key){
-            		value.$emit('change', model);
+            		value.$emit('changeModel', model, scope);
             	});
             });
 
@@ -37,7 +37,11 @@ mod.directive('province', ['$filter', function($filter) {
         require: '^?address',
         restrict: 'AE',
         controller: function($scope, $element, $attrs, $transclude) {
-            $scope.$on('change', function(ev, res){
+            $scope.name = 'province'
+
+            $scope.$on('changeModel', function(ev, res, scope){
+                if(scope === $scope)return;
+
             	var province = res && res.province;
 
             	if(province){
@@ -54,7 +58,9 @@ mod.directive('province', ['$filter', function($filter) {
             });
 
             $scope.$watch('model', function(newValue, oldValue, scope) {
-            	$scope.change(newValue);
+            	if(newValue){
+                    $scope.change(newValue);
+                }
             });
         },
         template: '<select\
@@ -68,7 +74,7 @@ mod.directive('province', ['$filter', function($filter) {
             addressController.pushAddress($scope);
 
             $scope.change = function(model){
-            	addressController.getScope().$emit('childChange', model);
+            	addressController.getScope().$emit('childChange', model, $scope);
             }
         }
     };
@@ -83,10 +89,13 @@ mod.directive('city', ['$filter', function($filter) {
         require: '^?address',
         restrict: 'AE',
         controller: function($scope, $element, $attrs, $transclude) {
-            $scope.$on('change', function(ev, res){
+            $scope.name = 'city'
+            $scope.$on('changeModel', function(ev, res, scope){
+                if(scope === $scope)return;
+
             	var city = res && res.city;
 
-            	if(city){
+            	if(city && city.length>0){
             		var code = $scope.code;
 
             		if(code && !$scope.model){
@@ -95,16 +104,19 @@ mod.directive('city', ['$filter', function($filter) {
             		else{
             			$scope.model = city[0]
             		}
-            		$scope.city = city;
             	}
+                $scope.city = city;
             });
 
             $scope.$watch('model', function(newValue, oldValue, scope) {
-            	$scope.change(newValue);
+                if(newValue){
+                    $scope.change(newValue);
+                }
             });
         },
         template: '<select\
 			            ng-model="model"\
+                        ng-show="city.length"\
 			            ng-options="c.name for c in city track by c.code"\
 			       </select>',
         replace: true,
@@ -114,7 +126,7 @@ mod.directive('city', ['$filter', function($filter) {
             addressController.pushAddress($scope);
 
             $scope.change = function(model){
-            	addressController.getScope().$emit('childChange', model);
+            	addressController.getScope().$emit('childChange', model, $scope);
             }
         }
     };
@@ -128,10 +140,12 @@ mod.directive('area', ['$filter', function($filter) {
         },
         require: '^?address',
         controller: function($scope, $element, $attrs, $transclude) {
-            $scope.$on('change', function(ev, res){
+            $scope.$on('changeModel', function(ev, res, scope){
+                if(scope === $scope)return;
+
             	var area = res && res.area;
 
-            	if(area){
+            	if(area && area.length>0){
             		var code = $scope.code;
 
             		if(code && !$scope.model){
@@ -140,13 +154,14 @@ mod.directive('area', ['$filter', function($filter) {
             		else{
             			$scope.model = area[0]
             		}
-            		$scope.area = area;
             	}
+                $scope.area = area;
             });
         },
         restrict: 'AE',
         template: '<select\
 			            ng-model="model"\
+                        ng-show="area.length"\
 			            ng-options="a.name for a in area track by a.code">\
 			       </select>',
         replace: true,
