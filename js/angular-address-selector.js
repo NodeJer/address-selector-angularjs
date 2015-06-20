@@ -63,10 +63,7 @@ mod.directive('province', ['$filter', function($filter) {
                 }
             });
         },
-        template: '<select\
-			            ng-model="model"\
-			            ng-options="p.name for p in province track by p.code"\
-			       </select>',
+        template: '<select ng-model="model" ng-options="p.name for p in province track by p.code"></select>',
         replace: true,
         link: function($scope, iElm, iAttrs, addressController) {
             if (!addressController) return;
@@ -114,11 +111,7 @@ mod.directive('city', ['$filter', function($filter) {
                 }
             });
         },
-        template: '<select\
-			            ng-model="model"\
-                        ng-show="city.length"\
-			            ng-options="c.name for c in city track by c.code"\
-			       </select>',
+        template: '<select ng-model="model" ng-show="city.length" ng-options="c.name for c in city track by c.code"></select>',
         replace: true,
         link: function($scope, iElm, iAttrs, addressController) {
             if (!addressController) return;
