@@ -1,4 +1,4 @@
-var mod = angular.module('ngAddressSelector', []);
+var mod = angular.module('ng.address.selector', []);
 
 mod.directive('address', ['$http', '$filter', function($http, $filter) {
     return {
