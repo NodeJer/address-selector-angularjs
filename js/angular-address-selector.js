@@ -1,6 +1,6 @@
 var mod = angular.module('ngAddressSelector', []);
 
-mod.directive('address', ['$filter', '$http', '$rootScope', function($filter, $http, $rootScope) {
+mod.directive('address', ['$http', '$filter', function($http, $filter) {
     return {
         scope: {},
         controller: function($scope, $element, $attrs, $transclude) {
@@ -13,49 +13,14 @@ mod.directive('address', ['$filter', '$http', '$rootScope', function($filter, $h
                 addressArr.push(address);
             }
 
+            $scope.$on('childChange', function(ev, model){
+            	angular.forEach(addressArr, function(value, key){
+            		value.$emit('change', model);
+            	});
+            });
+
             $http.get($attrs.data).success(function(res) {
-
-            	addressArr = $filter('orderBy')(addressArr, '-name');
-
-                $scope.model = res;
-                
-                angular.forEach(addressArr, function(address) {
-                	//找到上一级
-                    findParnet(address);
-
-                    var code = address.code;
-                    var name = address.name;
-                    var parent = address.parent;
-
-                    if (code) {
-                        address.model = $filter('filter')(parent.model[name], {
-                            code: code
-                        })[0];
-                    } else {
-                        parent.$watch('model', function(newVal){
-                        	if(!newVal)return;
-                        	
-			            	address.model = newVal[name][0];
-			            });
-                    }
-                });
-
-                function findParnet(address) {
-
-                    var parentName = address.parentName;
-                    var name = address.name;
-
-                    if (parentName === 'address') {
-                        address.parent = $scope;
-                        return;
-                    }
-
-                    angular.forEach(addressArr, function(address2) {
-                        if (address2.name === parentName) {
-                            address.parent = address2;
-                        }
-                    });
-                }
+            	$scope.$emit('childChange', res);
             });
         },
         restrict: 'AE',
@@ -63,7 +28,7 @@ mod.directive('address', ['$filter', '$http', '$rootScope', function($filter, $h
 
 }]);
 
-mod.directive('province', function() {
+mod.directive('province', ['$filter', function($filter) {
 
     return {
         scope: {
@@ -72,24 +37,44 @@ mod.directive('province', function() {
         require: '^?address',
         restrict: 'AE',
         controller: function($scope, $element, $attrs, $transclude) {
-            $scope.name = 'province';
-            $scope.parentName = 'address';
+            $scope.$on('change', function(ev, res){
+            	var province = res && res.province;
+
+            	if(province){
+            		var code = $scope.code;
+
+            		if(code && !$scope.model){
+            			$scope.model = $filter('filter')(province, {code: code})[0];
+            		}
+            		else{
+            			$scope.model = province[0]
+            		}
+            		$scope.province = province;
+            	}
+            });
+
+            $scope.$watch('model', function(newValue, oldValue, scope) {
+            	$scope.change(newValue);
+            });
         },
         template: '<select\
 			            ng-model="model"\
-			            ng-options="p.name for p in parent.model[name] track by p.code"\
-			            ng-change="$emit(\'change\')"\
+			            ng-options="p.name for p in province track by p.code"\
 			       </select>',
         replace: true,
         link: function($scope, iElm, iAttrs, addressController) {
             if (!addressController) return;
 
             addressController.pushAddress($scope);
+
+            $scope.change = function(model){
+            	addressController.getScope().$emit('childChange', model);
+            }
         }
     };
 
-});
-mod.directive('city', function() {
+}]);
+mod.directive('city', ['$filter', function($filter) {
 
     return {
         scope: {
@@ -98,46 +83,81 @@ mod.directive('city', function() {
         require: '^?address',
         restrict: 'AE',
         controller: function($scope, $element, $attrs, $transclude) {
-            $scope.name = 'city';
-            $scope.parentName = 'province';
+            $scope.$on('change', function(ev, res){
+            	var city = res && res.city;
+
+            	if(city){
+            		var code = $scope.code;
+
+            		if(code && !$scope.model){
+            			$scope.model = $filter('filter')(city, {code: code})[0];
+            		}
+            		else{
+            			$scope.model = city[0]
+            		}
+            		$scope.city = city;
+            	}
+            });
+
+            $scope.$watch('model', function(newValue, oldValue, scope) {
+            	$scope.change(newValue);
+            });
         },
         template: '<select\
 			            ng-model="model"\
-			            ng-if="parent.model[name]"\
-			            ng-options="c.name for c in parent.model[name] track by c.code"\
+			            ng-options="c.name for c in city track by c.code"\
 			       </select>',
         replace: true,
         link: function($scope, iElm, iAttrs, addressController) {
             if (!addressController) return;
 
             addressController.pushAddress($scope);
+
+            $scope.change = function(model){
+            	addressController.getScope().$emit('childChange', model);
+            }
         }
     };
 
-});
+}]);
 
-mod.directive('area', function(){
-	return {
-		scope: {
-			code: '@'
-		},
-		require: '^?address',
-		controller: function($scope, $element, $attrs, $transclude) {
-            $scope.name = 'area';
-            $scope.parentName = 'city';
+mod.directive('area', ['$filter', function($filter) {
+    return {
+        scope: {
+            code: '@'
         },
-		restrict: 'AE', 
-		template: '<select\
+        require: '^?address',
+        controller: function($scope, $element, $attrs, $transclude) {
+            $scope.$on('change', function(ev, res){
+            	var area = res && res.area;
+
+            	if(area){
+            		var code = $scope.code;
+
+            		if(code && !$scope.model){
+            			$scope.model = $filter('filter')(area, {code: code})[0];
+            		}
+            		else{
+            			$scope.model = area[0]
+            		}
+            		$scope.area = area;
+            	}
+            });
+        },
+        restrict: 'AE',
+        template: '<select\
 			            ng-model="model"\
-			            ng-if="parent.model[name]"\
-			            ng-options="a.name for a in parent.model[name] track by a.code">\
+			            ng-options="a.name for a in area track by a.code">\
 			       </select>',
-		replace: true,
-		link: function($scope, iElm, iAttrs, addressController) {
-			if(!addressController)return;
+        replace: true,
+        link: function($scope, iElm, iAttrs, addressController) {
+            if (!addressController) return;
 
-			addressController.pushAddress($scope);
-		}
-	};
-});
+            addressController.pushAddress($scope);
 
+            $scope.change = function(model){
+            	addressController.getScope().$emit('childChange', model);
+            }
+        }
+    };
+}]);
