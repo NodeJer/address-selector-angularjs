@@ -34,7 +34,7 @@ mod.directive('province', ['$filter', function($filter) {
         scope: {
             code: '@'
         },
-        require: '^?address',
+        require: '^?addressSelector',
         restrict: 'AE',
         controller: function($scope, $element, $attrs, $transclude) {
             $scope.name = 'province'
@@ -83,7 +83,7 @@ mod.directive('city', ['$filter', function($filter) {
         scope: {
             code: '@'
         },
-        require: '^?address',
+        require: '^?addressSelector',
         restrict: 'AE',
         controller: function($scope, $element, $attrs, $transclude) {
             $scope.name = 'city'
@@ -131,7 +131,7 @@ mod.directive('area', ['$filter', function($filter) {
         scope: {
             code: '@'
         },
-        require: '^?address',
+        require: '^?addressSelector',
         controller: function($scope, $element, $attrs, $transclude) {
             $scope.$on('changeModel', function(ev, res, scope){
                 if(scope === $scope)return;
