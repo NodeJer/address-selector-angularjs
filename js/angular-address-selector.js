@@ -1,6 +1,6 @@
 var mod = angular.module('ng.address.selector', []);
 
-mod.directive('address', ['$http', '$filter', function($http, $filter) {
+mod.directive('addressSelector', ['$http', '$filter', function($http, $filter) {
     return {
         scope: {},
         controller: function($scope, $element, $attrs, $transclude) {
